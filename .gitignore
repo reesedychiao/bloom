@@ -1,0 +1,13 @@
+node_modules
+dist
+dev-dist
+*.tsbuildinfo
+
+# local env — real Supabase keys live here, never committed
+.env
+.env.local
+.env.*.local
+
+# editor/os
+.DS_Store
+*.log

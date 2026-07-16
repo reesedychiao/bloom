@@ -1,0 +1,39 @@
+/*
+ * Bloom design tokens — the single source of truth for color.
+ * Components must consume these (directly or via Tailwind utilities
+ * mapped in global.css), never hardcoded hex values.
+ */
+
+:root {
+  /* palette */
+  --soil: #3e322b;
+  --parchment: #faf6ec;
+  --leaf: #6b8f5e;
+  --petal: #c4698f;
+  --marigold: #e0a83c;
+  --mist: #a8b5a0;
+
+  /* semantic */
+  --canvas: var(--parchment); /* page background */
+  --ink: var(--soil); /* primary text */
+  --surface: #fffdf5; /* raised paper (cards, tags) */
+  --border: color-mix(in srgb, var(--mist) 55%, transparent);
+  --ink-soft: color-mix(in srgb, var(--soil) 62%, var(--parchment));
+}
+
+/*
+ * Night garden: soil becomes the ground we stand on, parchment the ink;
+ * petal and marigold glow a touch brighter against the dark.
+ * (Toggle UI ships in Phase 4 — the tokens are ready from day one.)
+ */
+[data-theme="dark"] {
+  --petal: #d67fa4;
+  --marigold: #ecba58;
+  --mist: #77836f;
+
+  --canvas: #332924; /* soil, deepened for contrast */
+  --ink: var(--parchment);
+  --surface: #3e322b;
+  --border: color-mix(in srgb, var(--mist) 45%, transparent);
+  --ink-soft: color-mix(in srgb, var(--parchment) 65%, #332924);
+}
