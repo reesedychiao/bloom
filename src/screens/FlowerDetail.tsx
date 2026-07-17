@@ -19,6 +19,7 @@ import {
 } from "../lib/types";
 import { Flower } from "../assets/flowers/Flower";
 import { CompostDialog } from "../features/compost/CompostDialog";
+import { InterviewSection } from "../features/interviews/InterviewSection";
 
 export function FlowerDetail() {
   const { id = "" } = useParams();
@@ -97,6 +98,8 @@ export function FlowerDetail() {
             <p className="mt-1 whitespace-pre-wrap text-sm text-ink-soft">{app.notes}</p>
           </section>
         )}
+
+        <InterviewSection app={app} />
 
         <section className="mt-10">
           <h2 className="text-lg text-ink">Growth so far</h2>
@@ -198,7 +201,7 @@ function Vine({ events }: { events: StageEvent[] }) {
           <svg
             viewBox="0 0 12 12"
             aria-hidden="true"
-            className="absolute -left-[27px] top-1 h-3.5 w-3.5"
+            className="absolute -left-6.75 top-1 h-3.5 w-3.5"
           >
             <path
               d="M1 11 Q1 3 11 1 Q11 9 3 11 Z"

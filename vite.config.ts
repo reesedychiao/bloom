@@ -9,7 +9,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      // injectManifest (not generateSW) because push needs custom SW handlers
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
+      injectManifest: {
+        globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+      },
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
         name: "Bloom",
@@ -35,10 +42,6 @@ export default defineConfig({
             purpose: "maskable",
           },
         ],
-      },
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
-        navigateFallback: "/index.html",
       },
     }),
   ],

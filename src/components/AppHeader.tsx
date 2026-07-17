@@ -31,6 +31,9 @@ export function AppHeader() {
           <Link to="/applications" className="text-sm text-ink-soft hover:text-ink">
             List
           </Link>
+          <Link to="/settings" aria-label="Settings" className="text-sm text-ink-soft hover:text-ink">
+            ⚙
+          </Link>
           <button
             type="button"
             onClick={() => supabase?.auth.signOut()}

@@ -1,5 +1,17 @@
 # Changelog
 
+## Phase 3 — Interviews & reminders (2026-07-17)
+
+- Interview prep engine (`src/lib/game/prep.ts`, pure + unit tested): generates the T-5…T-1 checklist backward from the interview date, compresses gracefully when <5 days out, collapses to one "crash prep" task when <2 days out, never schedules in the past; kind-specific practice tasks; mock task pays the mock rate (40).
+- Interview tracking on the flower detail screen: schedule form, upcoming list with outcome control, prep checklist whose checkboxes award Sunlight through the existing award path (so streak/quests/level react). Prep quests added to the pool (daily + weekly); `first_interview` achievement.
+- .ics export (`src/lib/ics.ts`, tested): VEVENT with 1-day and 1-hour VALARMs, RFC-5545 escaping/CRLF. Manual "Add to calendar" button (no longer auto-downloads on schedule).
+- Custom themed `DateTimePicker` (calendar + time from design tokens) replaces the native datetime input, matching the garden in day and night themes.
+- Reminder pipeline: `send-reminders` Edge Function (web push via VAPID + Resend email fallback, 9:00-local gating with quiet-hours support, idempotent via `prep_tasks.notified_at`), driven by a pg_cron schedule every 15 min. Cron's shared secret lives in Supabase Vault, never in the repo (0004 reads it via `vault.decrypted_secrets`).
+- Service worker switched from generateSW to injectManifest (`src/sw.ts`) to carry push/notificationclick handlers while keeping the same precache/offline behavior. `/settings` route: per-device push subscribe + channel toggles + timezone.
+- Migrations 0003 (notified_at, push_subscriptions, notification_settings) and 0004 (pg_cron schedule).
+
+Verified end-to-end: the cron job autonomously dispatched a due crash-prep reminder (email delivered, `notified_at` stamped, subsequent runs correctly skip it). Deferred to Phase 4: quiet-hours UI (columns exist), full settings, achievements wall + bouquet.
+
 ## Phase 2 — Gamification (2026-07-17)
 
 - Pure, unit-tested game library (`src/lib/game/`): Sunlight values, level curve (100·L^1.5 rounded to 10) with Gardener ranks + Roman-numeral prestige, watering streak with auto-applied freezes (2/week, Monday replenish, never punishes clock skew), rotating daily/weekly quests, achievement evaluation. 33 tests.

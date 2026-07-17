@@ -9,6 +9,7 @@ export interface AchievementStats {
   totalComposted: number; // compost-reason sunlight events
   currentStreak: number;
   everReachedBloom: boolean; // any application hit offer/accepted
+  totalInterviews: number;
 }
 
 export interface AchievementDef {
@@ -44,12 +45,18 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     earned: (s) => s.currentStreak >= 7,
   },
   {
+    key: "first_interview",
+    title: "First interview",
+    description: "A flower budded — someone wants to talk.",
+    earned: (s) => s.totalInterviews >= 1,
+  },
+  {
     key: "first_bloom",
     title: "First bloom",
     description: "An application reached an offer.",
     earned: (s) => s.everReachedBloom,
   },
-  // first_interview + full_bouquet_5 unlock in Phases 3–4
+  // full_bouquet_5 arrives with the bouquet screen in Phase 4
 ];
 
 /** Newly earned achievements, given current stats and already-unlocked keys. */

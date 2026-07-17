@@ -86,6 +86,50 @@ export interface StageEvent {
   note: string | null;
 }
 
+export type InterviewKind =
+  | "recruiter"
+  | "behavioral"
+  | "technical"
+  | "system_design"
+  | "case"
+  | "onsite"
+  | "final";
+
+export const INTERVIEW_KIND_LABELS: Record<InterviewKind, string> = {
+  recruiter: "Recruiter chat",
+  behavioral: "Behavioral",
+  technical: "Technical",
+  system_design: "System design",
+  case: "Case",
+  onsite: "Onsite",
+  final: "Final round",
+};
+
+export interface Interview {
+  id: string;
+  application_id: string;
+  scheduled_at: string;
+  kind: InterviewKind | null;
+  location_or_link: string | null;
+  outcome: "pending" | "passed" | "failed" | "cancelled";
+  notes: string | null;
+  created_at: string;
+}
+
+export interface PrepTask {
+  id: string;
+  interview_id: string;
+  due_on: string;
+  title: string;
+  kind: "research" | "jd_mapping" | "practice" | "mock" | "logistics" | null;
+  completed_at: string | null;
+  sunlight_reward: number;
+}
+
+export interface InterviewWithPrep extends Interview {
+  prep_tasks: PrepTask[];
+}
+
 export interface Quest {
   id: string;
   kind: "daily" | "weekly";

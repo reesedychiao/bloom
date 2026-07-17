@@ -141,12 +141,17 @@ export async function awardAction(input: AwardInput): Promise<AwardResult> {
   }
 
   // 4 — achievements
-  const [{ count: totalApplications }, { count: totalComposted }, { count: blooms }] =
-    await Promise.all([
-      c.from("applications").select("id", { count: "exact", head: true }),
-      c.from("sunlight_events").select("id", { count: "exact", head: true }).eq("reason", "compost"),
-      c.from("applications").select("id", { count: "exact", head: true }).in("status", ["offer", "accepted"]),
-    ]);
+  const [
+    { count: totalApplications },
+    { count: totalComposted },
+    { count: blooms },
+    { count: totalInterviews },
+  ] = await Promise.all([
+    c.from("applications").select("id", { count: "exact", head: true }),
+    c.from("sunlight_events").select("id", { count: "exact", head: true }).eq("reason", "compost"),
+    c.from("applications").select("id", { count: "exact", head: true }).in("status", ["offer", "accepted"]),
+    c.from("interviews").select("id", { count: "exact", head: true }),
+  ]);
   const unlockedBefore = await fetchUnlockedAchievements();
   const newlyEarned = evaluateAchievements(
     {
@@ -154,6 +159,7 @@ export async function awardAction(input: AwardInput): Promise<AwardResult> {
       totalComposted: totalComposted ?? 0,
       currentStreak: advance.state.current_streak,
       everReachedBloom: (blooms ?? 0) > 0,
+      totalInterviews: totalInterviews ?? 0,
     },
     unlockedBefore,
   );

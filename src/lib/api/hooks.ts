@@ -15,16 +15,24 @@ import {
   touchApplication,
   type AwardResult,
 } from "./game";
+import {
+  completePrepTask,
+  createInterview,
+  listInterviews,
+  setInterviewOutcome,
+  type NewInterview,
+} from "./interviews";
 import { daysBetween, localDateString } from "../game/dates";
 import { GHOSTED_CREDIT, SUNLIGHT_FOR } from "../game/sunlight";
 import { isTerminal, stageForStatus } from "../game/growth";
 import { useUI } from "../../stores/ui";
-import type { Application, NewApplication, Status } from "../types";
+import type { Application, Interview, NewApplication, PrepTask, Status } from "../types";
 
 export const keys = {
   applications: ["applications"] as const,
   application: (id: string) => ["applications", id] as const,
   stageEvents: (id: string) => ["applications", id, "events"] as const,
+  interviews: (appId: string) => ["applications", appId, "interviews"] as const,
   game: ["game"] as const,
   sunlight: ["game", "sunlight"] as const,
   streak: ["game", "streak"] as const,
@@ -45,6 +53,10 @@ export function useApplication(id: string) {
 
 export function useStageEvents(id: string) {
   return useQuery({ queryKey: keys.stageEvents(id), queryFn: () => listStageEvents(id) });
+}
+
+export function useInterviews(appId: string) {
+  return useQuery({ queryKey: keys.interviews(appId), queryFn: () => listInterviews(appId) });
 }
 
 export function useSunlightTotal() {
@@ -176,6 +188,45 @@ export function useCompost(app: Application) {
       queryClient.invalidateQueries({ queryKey: keys.applications });
       applyAward(award);
     },
+  });
+}
+
+/** Schedule an interview; prep checklist is generated alongside (spec §6). */
+export function useCreateInterview(appId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: NewInterview) => createInterview(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: keys.interviews(appId) }),
+  });
+}
+
+/** Ticking a prep task pays its stored reward through the normal award path. */
+export function useCompletePrepTask(app: Application) {
+  const queryClient = useQueryClient();
+  const applyAward = useApplyAward();
+  return useMutation({
+    mutationFn: async (task: PrepTask) => {
+      await completePrepTask(task.id);
+      return awardAction({
+        reason: task.kind === "mock" ? "mock" : "prep_task",
+        amount: task.sunlight_reward,
+        refId: task.id,
+        isDream: app.is_dream,
+      });
+    },
+    onSuccess: (award) => {
+      queryClient.invalidateQueries({ queryKey: keys.interviews(app.id) });
+      applyAward(award);
+    },
+  });
+}
+
+export function useSetInterviewOutcome(appId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, outcome }: { id: string; outcome: Interview["outcome"] }) =>
+      setInterviewOutcome(id, outcome),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: keys.interviews(appId) }),
   });
 }
 

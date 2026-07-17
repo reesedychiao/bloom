@@ -7,6 +7,7 @@ import { Garden } from "./screens/Garden";
 import { FlowerDetail } from "./screens/FlowerDetail";
 import { Applications } from "./screens/Applications";
 import { SpeciesGallery } from "./screens/SpeciesGallery";
+import { Settings } from "./screens/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000 } },
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/" element={<AuthGate><Garden /></AuthGate>} />
           <Route path="/flower/:id" element={<AuthGate><FlowerDetail /></AuthGate>} />
           <Route path="/applications" element={<AuthGate><Applications /></AuthGate>} />
+          <Route path="/settings" element={<AuthGate><Settings /></AuthGate>} />
         </Routes>
         <Toasts />
         <LevelUpOverlay />

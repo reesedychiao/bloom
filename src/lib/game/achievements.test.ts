@@ -6,6 +6,7 @@ const base: AchievementStats = {
   totalComposted: 0,
   currentStreak: 0,
   everReachedBloom: false,
+  totalInterviews: 0,
 };
 
 describe("evaluateAchievements", () => {
@@ -33,5 +34,13 @@ describe("evaluateAchievements", () => {
       "ten_seeds",
       "week_streak",
     ]);
+  });
+
+  it("unlocks first_interview on the first scheduled interview", () => {
+    const earned = evaluateAchievements(
+      { ...base, totalApplications: 1, totalInterviews: 1 },
+      new Set(["first_seed"]),
+    );
+    expect(earned.map((a) => a.key)).toEqual(["first_interview"]);
   });
 });
