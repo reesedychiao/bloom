@@ -1,5 +1,18 @@
 # Changelog
 
+## Phase 1 — Core CRUD + garden (2026-07-16)
+
+- Full schema (`supabase/migrations/0001_init.sql` + `0002_more_species.sql`): all 9 tables, owner-only RLS, and triggers that write `stage_events` and derive `growth_stage` atomically on any status change.
+- Pure game logic in `src/lib/game/growth.ts` (status → growth stage, terminal detection), unit tested, mirrored by the SQL trigger.
+- Data layer: TanStack Query hooks over typed Supabase CRUD (`src/lib/api/`).
+- Screens (react-router): garden with staggered flowerbed (stable per-flower jitter, paper tags, idle sway), plant-a-seed bottom sheet (<20s quick-add, species picker with "surprise me", tailored checkbox), flower detail with vine timeline + stage select, applications list, dev-only `/species` art gallery.
+- Planting animation: seed drop with spring + dirt puff (Framer Motion); growth-stage crossfade on detail; all with reduced-motion fallbacks.
+- 8 species shipped: sunflower, tulip (terracotta), rose (layered red), daisy, lavender, peony, lily, calla lily — the last two are additions beyond the spec's 8, by request. Poppy and orchid still need art.
+- Species accent tints added as tokens (`--tint-*`) with night-garden values.
+
+Deferred: Sunlight awards (the `tailored` flag is stored for retroactive credit), compost/wilt visuals, notes editing on detail, error state on list screen, Zustand (still unneeded).
+
+
 ## Phase 0 — Scaffold & deploy skeleton (2026-07-16)
 
 - Vite + React 19 + TypeScript app, pnpm, deployed-ready for Vercel (SPA rewrite in `vercel.json`).

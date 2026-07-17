@@ -68,6 +68,22 @@
     outline-offset: 2px;
   }
 
+  /* ambient idle sway for garden flowers; killed by the reduced-motion rule below */
+  @keyframes sway {
+    0%,
+    100% {
+      transform: rotate(-1.2deg);
+    }
+    50% {
+      transform: rotate(1.4deg);
+    }
+  }
+
+  .flower-sway {
+    animation: sway 6s ease-in-out infinite;
+    transform-origin: 50% 92%;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

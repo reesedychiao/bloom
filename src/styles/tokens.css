@@ -13,6 +13,12 @@
   --marigold: #e0a83c;
   --mist: #a8b5a0;
 
+  /* species accent tints (§2.6 "per-species accent tints") — art-only colors,
+     kept here so the flowers stay tokenized and night-garden-tunable */
+  --tint-rose: #b04e52; /* dusty garden red */
+  --tint-tulip: #d97f4b; /* warm terracotta orange */
+  --tint-lavender: #8f7fae; /* muted botanical violet */
+
   /* semantic */
   --canvas: var(--parchment); /* page background */
   --ink: var(--soil); /* primary text */
@@ -30,6 +36,9 @@
   --petal: #d67fa4;
   --marigold: #ecba58;
   --mist: #77836f;
+  --tint-rose: #c25e62;
+  --tint-tulip: #e5905c;
+  --tint-lavender: #a493c4;
 
   --canvas: #332924; /* soil, deepened for contrast */
   --ink: var(--parchment);

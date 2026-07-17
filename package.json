@@ -16,8 +16,11 @@
     "@fontsource-variable/nunito-sans": "^5.2.7",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@supabase/supabase-js": "^2.110.6",
+    "@tanstack/react-query": "^5.101.2",
+    "framer-motion": "^12.42.2",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-router": "^8.2.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.2",

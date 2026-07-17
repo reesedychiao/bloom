@@ -1,81 +1,192 @@
+import { useState, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router";
+import { motion, useReducedMotion } from "framer-motion";
 import { supabase } from "../lib/supabase";
+import { useApplications } from "../lib/api/hooks";
+import { isTerminal } from "../lib/game/growth";
+import { STATUS_LABELS, type Application } from "../lib/types";
+import { Flower } from "../assets/flowers/Flower";
+import { SproutStage } from "../assets/flowers/shared";
+import { PlantSheet } from "../features/plant/PlantSheet";
 
-/** A single quiet sprout for the empty bed — the garden's first resident. */
-function Sprout() {
-  return (
-    <svg
-      viewBox="0 0 100 140"
-      className="h-28 w-20"
-      role="img"
-      aria-label="A small sprout in fresh soil"
-    >
-      <path
-        d="M22 122 Q50 112 78 122 Q64 132 50 131 Q36 132 22 122 Z"
-        fill="var(--soil)"
-        opacity="0.85"
-      />
-      <path
-        d="M50 122 Q49 96 51 78"
-        fill="none"
-        stroke="var(--leaf)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M51 82 Q30 76 27 56 Q49 58 52 80 Z"
-        fill="var(--leaf)"
-        stroke="var(--soil)"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M51 90 Q68 82 74 66 Q54 66 50 87 Z"
-        fill="var(--leaf)"
-        stroke="var(--soil)"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        opacity="0.9"
-      />
-    </svg>
-  );
+/** Stable pseudo-random jitter per application so the bed feels organic
+ *  but never reshuffles between renders. */
+function jitter(id: string) {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) | 0;
+  const rand = (n: number) => {
+    const x = Math.sin(h + n) * 10_000;
+    return x - Math.floor(x);
+  };
+  return {
+    rotate: rand(1) * 9 - 4.5,
+    dy: rand(2) * 14,
+    scale: 0.9 + rand(3) * 0.18,
+    swayDelay: rand(4) * 5,
+  };
 }
 
 export function Garden() {
+  const { data: applications, isLoading, isError, error } = useApplications();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [justPlantedId, setJustPlantedId] = useState<string | null>(null);
+
+  // wilt/compost visuals arrive in Phase 2 — until then the bed shows live flowers
+  const growing = (applications ?? []).filter((a) => !isTerminal(a.status));
+
   return (
     <div className="min-h-dvh bg-canvas">
       <header className="flex items-center justify-between border-b border-line px-5 py-4">
         <h1 className="text-xl text-ink">Bloom</h1>
-        <div className="flex items-center gap-4">
-          <span
-            className="font-mono text-xs text-ink-soft"
-            title="Sunlight — earned with every bit of effort"
-          >
+        <nav className="flex items-center gap-4">
+          <span className="font-mono text-xs text-ink-soft" title="Sunlight — arrives in Phase 2">
             ☀ 0
           </span>
-          <span
-            className="font-mono text-xs text-ink-soft"
-            title="Watering streak"
-          >
-            🌢 0 days
+          <span className="font-mono text-xs text-ink-soft" title="Watering streak — arrives in Phase 2">
+            🌢 0
           </span>
+          <Link to="/applications" className="text-sm text-ink-soft hover:text-ink">
+            List
+          </Link>
           <button
             type="button"
             onClick={() => supabase?.auth.signOut()}
-            className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
+            className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft hover:text-ink"
           >
             Sign out
           </button>
-        </div>
+        </nav>
       </header>
 
-      <main className="mx-auto flex max-w-2xl flex-col items-center px-6 py-20 text-center">
-        <Sprout />
-        <h2 className="mt-6 text-2xl text-ink">Your garden is ready.</h2>
-        <p className="mt-3 max-w-md text-ink-soft">
-          Soon you’ll plant a seed for every application you send, and watch
-          it grow. Every bouquet starts with a single seed.
-        </p>
+      <main className="mx-auto max-w-3xl px-4 py-8">
+        {isError ? (
+          <p role="alert" className="mx-auto max-w-md rounded-lg border border-line bg-surface p-4 text-sm text-ink-soft">
+            The garden couldn’t be reached: {(error as Error).message}
+          </p>
+        ) : growing.length === 0 && !isLoading ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <svg viewBox="0 0 100 140" className="h-28 w-20" role="img" aria-label="A small sprout">
+              <SproutStage />
+            </svg>
+            <h2 className="mt-6 text-2xl text-ink">Your garden is ready.</h2>
+            <p className="mt-3 max-w-md text-ink-soft">
+              Plant a seed for every application you send, and watch it grow. Every bouquet
+              starts with a single seed.
+            </p>
+          </div>
+        ) : (
+          <ul className="flex flex-wrap items-end justify-center gap-x-1 gap-y-6 pb-24">
+            {growing.map((app) => (
+              <GardenFlower
+                key={app.id}
+                app={app}
+                justPlanted={app.id === justPlantedId}
+              />
+            ))}
+          </ul>
+        )}
       </main>
+
+      <button
+        type="button"
+        onClick={() => setSheetOpen(true)}
+        className="fixed bottom-6 right-6 z-30 rounded-full bg-leaf px-5 py-3 font-semibold text-parchment shadow-lg transition-transform hover:scale-105"
+      >
+        Plant a seed
+      </button>
+
+      <PlantSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onPlanted={setJustPlantedId}
+      />
+    </div>
+  );
+}
+
+function GardenFlower({ app, justPlanted }: { app: Application; justPlanted: boolean }) {
+  const navigate = useNavigate();
+  const j = jitter(app.id);
+
+  return (
+    <li
+      className="group relative"
+      style={{ transform: `translateY(${-j.dy}px)` }}
+    >
+      <PlantDrop animate={justPlanted}>
+        <button
+          type="button"
+          onClick={() => navigate(`/flower/${app.id}`)}
+          aria-label={`${app.company}, ${app.role} — ${STATUS_LABELS[app.status]}`}
+          className="block transition-transform duration-300 group-hover:-translate-y-1.5"
+          style={{ transform: `rotate(${j.rotate}deg) scale(${j.scale})` }}
+        >
+          <div className="flower-sway" style={{ animationDelay: `${j.swayDelay}s` }}>
+            <Flower species={app.species} stage={app.growth_stage} className="h-32 w-[92px]" />
+          </div>
+        </button>
+      </PlantDrop>
+
+      {/* paper tag on hover/focus */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-full z-10 w-max max-w-44 -translate-x-1/2 -translate-y-3 -rotate-2 rounded-sm border border-line bg-surface px-2.5 py-1.5 text-left opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
+      >
+        <p className="truncate text-sm font-semibold text-ink">{app.company}</p>
+        <p className="truncate text-xs text-ink-soft">{app.role}</p>
+        <p className="mt-0.5 font-mono text-xs text-leaf">{STATUS_LABELS[app.status]}</p>
+      </div>
+    </li>
+  );
+}
+
+/** The planting moment: seed drops in with a spring and a puff of dirt.
+ *  Reduced motion: a simple fade. */
+function PlantDrop({ animate, children }: { animate: boolean; children: ReactNode }) {
+  const reduceMotion = useReducedMotion();
+
+  if (!animate) return <>{children}</>;
+  if (reduceMotion) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+        {children}
+      </motion.div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <motion.div
+        initial={{ y: -48, scale: 0.45, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 430, damping: 17, mass: 0.9 }}
+      >
+        {children}
+      </motion.div>
+      <DirtPuff />
+    </div>
+  );
+}
+
+function DirtPuff() {
+  const bits = [
+    { x: -20, y: -8, delay: 0.1 },
+    { x: 16, y: -12, delay: 0.14 },
+    { x: -10, y: -18, delay: 0.18 },
+    { x: 22, y: -5, delay: 0.22 },
+    { x: 2, y: -22, delay: 0.16 },
+  ];
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
+      {bits.map((bit, i) => (
+        <motion.span
+          key={i}
+          className="absolute h-1.5 w-1.5 rounded-full bg-soil"
+          initial={{ x: 0, y: 0, opacity: 0.85 }}
+          animate={{ x: bit.x, y: bit.y, opacity: 0 }}
+          transition={{ duration: 0.55, delay: bit.delay, ease: "easeOut" }}
+        />
+      ))}
     </div>
   );
 }

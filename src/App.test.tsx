@@ -1,9 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import App from "./App";
 
-// Tests run without Supabase env vars, so the app should land on the
-// sign-in card in its "not connected" state rather than crash.
+// Force the unconfigured state so the test doesn't depend on whether
+// .env.local exists on the machine running it (Vite loads it in test mode).
+vi.mock("./lib/supabase", () => ({ supabase: null }));
+
 describe("App", () => {
   it("renders the sign-in card when Supabase is not configured", async () => {
     render(<App />);
