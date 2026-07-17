@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AuthGate } from "./features/auth/AuthGate";
 import { Toasts } from "./components/Toasts";
 import { LevelUpOverlay } from "./components/LevelUpOverlay";
@@ -17,11 +18,22 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000 } },
 });
 
-export default function App() {
+/** Routes with a gentle cross-fade + lift between pages (fade only under
+ *  reduced motion). Keyed on pathname so each navigation animates. */
+function AnimatedRoutes() {
+  const location = useLocation();
+  const reduceMotion = useReducedMotion();
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+        animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Routes location={location}>
           {/* dev-only views: static/mock, no auth needed */}
           <Route path="/species" element={<SpeciesGallery />} />
           <Route path="/almanac-preview" element={<AlmanacPreview />} />
@@ -33,6 +45,16 @@ export default function App() {
           <Route path="/almanac" element={<AuthGate><Almanac /></AuthGate>} />
           <Route path="/settings" element={<AuthGate><Settings /></AuthGate>} />
         </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AnimatedRoutes />
         <Toasts />
         <LevelUpOverlay />
       </BrowserRouter>

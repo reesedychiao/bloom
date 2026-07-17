@@ -46,16 +46,20 @@ export function OrchidBloom() {
         strokeLinecap="round"
       />
       <BaseLeaves />
+      {/* A clean five-petal orchid: two broad upper "wing" petals, a top petal,
+          two lower petals, and a distinct contrasting lower lip with a golden
+          throat — the touch that reads as orchid without getting busy. */}
       <g stroke={INK} strokeWidth={STROKE} strokeLinejoin="round">
-        {/* two upper petals + two lateral sepals, fanned */}
-        <ellipse cx="50" cy="34" rx="6" ry="9" fill={ORCHID_LIGHT} />
-        <ellipse cx="35" cy="44" rx="9" ry="6" transform="rotate(-18 35 44)" fill={ORCHID} />
-        <ellipse cx="65" cy="44" rx="9" ry="6" transform="rotate(18 65 44)" fill={ORCHID} />
-        <ellipse cx="41" cy="55" rx="6" ry="8" transform="rotate(-24 41 55)" fill={ORCHID_LIGHT} />
-        <ellipse cx="59" cy="55" rx="6" ry="8" transform="rotate(24 59 55)" fill={ORCHID_LIGHT} />
-        {/* the labellum — an orchid's signature lower lip */}
-        <path d="M50 46 Q42 56 46 66 Q50 70 54 66 Q58 56 50 46 Z" fill={LIP} />
-        <circle cx="50" cy="47" r="2.4" fill="var(--marigold)" stroke="none" />
+        <ellipse cx="50" cy="28" rx="7" ry="9" fill={ORCHID} />
+        <ellipse cx="33" cy="40" rx="11" ry="9" transform="rotate(-14 33 40)" fill={ORCHID} />
+        <ellipse cx="67" cy="40" rx="11" ry="9" transform="rotate(14 67 40)" fill={ORCHID} />
+        <ellipse cx="40" cy="54" rx="8" ry="9" transform="rotate(-28 40 54)" fill={ORCHID} />
+        <ellipse cx="60" cy="54" rx="8" ry="9" transform="rotate(28 60 54)" fill={ORCHID} />
+        {/* the lip: lighter, cupped, with a golden throat */}
+        <path d="M50 42 C43 42 42 52 47 57 C49 59 51 59 53 57 C58 52 57 42 50 42 Z" fill={ORCHID_LIGHT} />
+        <ellipse cx="50" cy="47" rx="3.2" ry="3.8" fill="var(--marigold)" stroke="none" />
+        <path d="M50 51 Q48 53 47 56" fill="none" stroke={LIP} strokeWidth="1" opacity="0.7" />
+        <path d="M50 51 Q52 53 53 56" fill="none" stroke={LIP} strokeWidth="1" opacity="0.7" />
       </g>
     </g>
   );

@@ -18,27 +18,38 @@ export function PoppyBud() {
   );
 }
 
+// broad rounded petal, tip up, base at the flower centre (50,42); rotated
+// around the centre to build the open face. Slightly irregular angles keep it
+// hand-drawn rather than a perfect pinwheel.
+const PETAL = "M50 42 C39 41 33 28 40 19 C45 12 55 12 60 19 C67 28 61 41 50 42 Z";
+const PETAL_ANGLES = [2, 71, 145, 217, 290];
+const DARK = "color-mix(in srgb, var(--soil) 78%, var(--tint-poppy))";
+
 export function PoppyBloom() {
   return (
     <g>
       <Ground />
-      <Stem top={58} sway={5} />
+      <Stem top={54} sway={5} />
       <LeafPair y={104} />
       <g stroke={INK} strokeWidth={STROKE} strokeLinejoin="round">
-        {/* four broad crepe petals, deliberately uneven */}
-        <path d="M50 46 Q30 40 30 28 Q31 18 44 20 Q52 22 50 46 Z" fill={POPPY} />
-        <path d="M50 46 Q70 39 71 27 Q70 17 57 20 Q49 23 50 46 Z" fill={POPPY} />
-        <path d="M50 44 Q40 30 48 22 Q56 30 50 44 Z" fill={POPPY_LIGHT} />
-        <path d="M50 46 Q38 56 40 64 Q50 60 50 46 Z" fill={POPPY} />
-        <path d="M50 46 Q62 56 60 64 Q50 60 50 46 Z" fill={POPPY} />
-        {/* dark seed capsule + stamen ring */}
-        <circle cx="50" cy="44" r="6" fill="color-mix(in srgb, var(--soil) 80%, var(--tint-poppy))" />
-        <g stroke="var(--soil)" strokeWidth="1">
-          <path d="M50 44 L44 40" />
-          <path d="M50 44 L56 40" />
-          <path d="M50 44 L46 49" />
-          <path d="M50 44 L55 49" />
+        {/* five broad crepe petals fanned around the centre */}
+        {PETAL_ANGLES.map((angle, i) => (
+          <path
+            key={angle}
+            d={PETAL}
+            fill={i % 2 === 0 ? POPPY : POPPY_LIGHT}
+            transform={`rotate(${angle} 50 42)`}
+          />
+        ))}
+        {/* the poppy's signature dark centre: seed capsule + a halo of stamens */}
+        <g fill={DARK} stroke="none">
+          {Array.from({ length: 11 }, (_, i) => {
+            const a = (i / 11) * Math.PI * 2;
+            return <circle key={i} cx={50 + Math.cos(a) * 8.5} cy={42 + Math.sin(a) * 8.5} r="1.2" />;
+          })}
         </g>
+        <circle cx="50" cy="42" r="5" fill={DARK} />
+        <circle cx="50" cy="42" r="5" fill="none" stroke="var(--soil)" strokeWidth="0.8" />
       </g>
     </g>
   );
