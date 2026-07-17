@@ -12,6 +12,7 @@ import {
   ensureQuests,
   fetchStreak,
   fetchSunlightTotal,
+  fetchUnlockedAchievements,
   touchApplication,
   type AwardResult,
 } from "./game";
@@ -37,6 +38,7 @@ export const keys = {
   sunlight: ["game", "sunlight"] as const,
   streak: ["game", "streak"] as const,
   quests: ["game", "quests"] as const,
+  achievements: ["game", "achievements"] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -61,6 +63,21 @@ export function useInterviews(appId: string) {
 
 export function useSunlightTotal() {
   return useQuery({ queryKey: keys.sunlight, queryFn: fetchSunlightTotal });
+}
+
+/** The bouquet: every flower that reached bloom (growth_stage 3), newest first. */
+export function useBouquet() {
+  const query = useApplications();
+  return {
+    ...query,
+    data: (query.data ?? [])
+      .filter((a) => a.growth_stage === 3)
+      .sort((a, b) => (a.last_activity_at < b.last_activity_at ? 1 : -1)),
+  };
+}
+
+export function useUnlockedAchievements() {
+  return useQuery({ queryKey: keys.achievements, queryFn: fetchUnlockedAchievements });
 }
 
 export function useStreak() {
@@ -138,6 +155,25 @@ export function usePlantSeed() {
   });
 }
 
+/** Board move: advance any application to a status (kanban drag or tap).
+ *  Same award rule as useAdvanceStatus, but the app is chosen at call time. */
+export function useMoveApplication() {
+  const queryClient = useQueryClient();
+  const applyAward = useApplyAward();
+  return useMutation({
+    mutationFn: async ({ app, status }: { app: Application; status: Status }) => {
+      await updateStatus(app.id, status);
+      const grew =
+        !isTerminal(status) && stageForStatus(status, app.growth_stage) > app.growth_stage;
+      return grew ? awardAction({ reason: "stage_advance", refId: app.id }) : null;
+    },
+    onSuccess: (award) => {
+      queryClient.invalidateQueries({ queryKey: keys.applications });
+      applyAward(award);
+    },
+  });
+}
+
 /** Status change; awards stage_advance Sunlight only when the flower grew. */
 export function useAdvanceStatus(app: Application) {
   const queryClient = useQueryClient();
@@ -191,12 +227,20 @@ export function useCompost(app: Application) {
   });
 }
 
-/** Schedule an interview; prep checklist is generated alongside (spec §6). */
+/** Schedule an interview; prep checklist is generated alongside (spec §6).
+ *  A booked interview blooms the flower (DB trigger) and adds it to the
+ *  bouquet — celebrate that. */
 export function useCreateInterview(appId: string) {
   const queryClient = useQueryClient();
+  const pushToast = useUI((s) => s.pushToast);
   return useMutation({
     mutationFn: (input: NewInterview) => createInterview(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: keys.interviews(appId) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: keys.interviews(appId) });
+      queryClient.invalidateQueries({ queryKey: keys.application(appId) });
+      queryClient.invalidateQueries({ queryKey: keys.applications });
+      pushToast("🌸 Bloomed — added to your bouquet", "notice");
+    },
   });
 }
 

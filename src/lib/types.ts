@@ -17,7 +17,7 @@ export const SPECIES_LABELS: Partial<Record<Species, string>> = {
   calla_lily: "calla lily",
 };
 
-/** Species with artwork shipped so far — the planting picker offers only these. */
+/** Species with artwork shipped — all ten as of Phase 4. */
 export const AVAILABLE_SPECIES: Species[] = [
   "sunflower",
   "tulip",
@@ -27,6 +27,8 @@ export const AVAILABLE_SPECIES: Species[] = [
   "peony",
   "lily",
   "calla_lily",
+  "poppy",
+  "orchid",
 ];
 
 export const STATUSES = [

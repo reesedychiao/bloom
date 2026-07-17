@@ -9,6 +9,8 @@ import { LavenderBud, LavenderBloom } from "./lavender";
 import { PeonyBud, PeonyBloom } from "./peony";
 import { LilyBud, LilyBloom } from "./lily";
 import { CallaBud, CallaBloom } from "./calla";
+import { PoppyBud, PoppyBloom } from "./poppy";
+import { OrchidBud, OrchidBloom } from "./orchid";
 
 const ART: Partial<Record<Species, { Bud: ComponentType; Bloom: ComponentType }>> = {
   sunflower: { Bud: SunflowerBud, Bloom: SunflowerBloom },
@@ -19,6 +21,8 @@ const ART: Partial<Record<Species, { Bud: ComponentType; Bloom: ComponentType }>
   peony: { Bud: PeonyBud, Bloom: PeonyBloom },
   lily: { Bud: LilyBud, Bloom: LilyBloom },
   calla_lily: { Bud: CallaBud, Bloom: CallaBloom },
+  poppy: { Bud: PoppyBud, Bloom: PoppyBloom },
+  orchid: { Bud: OrchidBud, Bloom: OrchidBloom },
 };
 
 /**

@@ -226,7 +226,7 @@ export function PlantSheet({
                 <button
                   type="submit"
                   disabled={create.isPending}
-                  className="flex-1 rounded-lg bg-leaf px-4 py-2 font-semibold text-parchment hover:opacity-90 disabled:opacity-60"
+                  className="flex-1 rounded-lg bg-leaf-deep px-4 py-2 font-semibold text-parchment hover:opacity-90 disabled:opacity-60"
                 >
                   {create.isPending ? "Planting…" : "Plant seed"}
                 </button>

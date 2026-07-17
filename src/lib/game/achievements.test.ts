@@ -7,6 +7,7 @@ const base: AchievementStats = {
   currentStreak: 0,
   everReachedBloom: false,
   totalInterviews: 0,
+  bouquetSize: 0,
 };
 
 describe("evaluateAchievements", () => {
@@ -34,6 +35,17 @@ describe("evaluateAchievements", () => {
       "ten_seeds",
       "week_streak",
     ]);
+  });
+
+  it("unlocks full_bouquet_5 at five blooms", () => {
+    expect(
+      evaluateAchievements({ ...base, bouquetSize: 4 }, new Set()).map((a) => a.key),
+    ).not.toContain("full_bouquet_5");
+    expect(
+      evaluateAchievements({ ...base, bouquetSize: 5 }, new Set(["first_seed", "first_bloom"])).map(
+        (a) => a.key,
+      ),
+    ).toContain("full_bouquet_5");
   });
 
   it("unlocks first_interview on the first scheduled interview", () => {

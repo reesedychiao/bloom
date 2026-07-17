@@ -36,7 +36,7 @@ export function LevelUpOverlay() {
             <button
               type="button"
               onClick={() => setLevelUp(null)}
-              className="mt-6 rounded-lg bg-leaf px-5 py-2 font-semibold text-parchment hover:opacity-90"
+              className="mt-6 rounded-lg bg-leaf-deep px-5 py-2 font-semibold text-parchment hover:opacity-90"
             >
               Keep growing
             </button>

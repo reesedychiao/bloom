@@ -8,8 +8,9 @@ export interface AchievementStats {
   totalApplications: number;
   totalComposted: number; // compost-reason sunlight events
   currentStreak: number;
-  everReachedBloom: boolean; // any application hit offer/accepted
+  everReachedBloom: boolean; // any flower reached bloom (interview booked or offer)
   totalInterviews: number;
+  bouquetSize: number; // flowers that have bloomed (growth_stage 3)
 }
 
 export interface AchievementDef {
@@ -53,10 +54,15 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     key: "first_bloom",
     title: "First bloom",
-    description: "An application reached an offer.",
+    description: "A flower reached full bloom.",
     earned: (s) => s.everReachedBloom,
   },
-  // full_bouquet_5 arrives with the bouquet screen in Phase 4
+  {
+    key: "full_bouquet_5",
+    title: "A full bouquet",
+    description: "Five blooms gathered in your vase.",
+    earned: (s) => s.bouquetSize >= 5,
+  },
 ];
 
 /** Newly earned achievements, given current stats and already-unlocked keys. */

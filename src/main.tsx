@@ -6,6 +6,9 @@ import "@fontsource/jetbrains-mono/index.css";
 import "@fontsource-variable/caveat/index.css";
 import "./styles/global.css";
 import App from "./App";
+import { initTheme } from "./lib/theme";
+
+initTheme();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

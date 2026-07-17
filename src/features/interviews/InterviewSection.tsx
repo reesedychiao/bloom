@@ -102,7 +102,7 @@ function InterviewForm({ app, onDone }: { app: Application; onDone: () => void }
       <button
         type="submit"
         disabled={create.isPending}
-        className="self-start rounded-lg bg-leaf px-4 py-2 text-sm font-semibold text-parchment hover:opacity-90 disabled:opacity-60"
+        className="self-start rounded-lg bg-leaf-deep px-4 py-2 text-sm font-semibold text-parchment hover:opacity-90 disabled:opacity-60"
       >
         {create.isPending ? "Scheduling…" : "Schedule + build prep list"}
       </button>

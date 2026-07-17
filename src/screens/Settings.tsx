@@ -8,6 +8,7 @@ import {
 } from "../lib/api/settings";
 import { getPushStatus, subscribeToPush, unsubscribeFromPush, type PushStatus } from "../lib/push";
 import { useUI } from "../stores/ui";
+import { resolveTheme, setTheme, type Theme } from "../lib/theme";
 
 const SETTINGS_KEY = ["settings", "notifications"] as const;
 
@@ -27,12 +28,18 @@ export function Settings() {
       </header>
 
       <main className="mx-auto max-w-md px-6 py-8">
-        <h2 className="text-xl text-ink">Reminders</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          Prep-task reminders arrive at 9:00 your time on their due day.
-        </p>
+        <section>
+          <h2 className="text-xl text-ink">Appearance</h2>
+          <ThemeToggle />
+        </section>
 
-        {settings ? <ReminderControls settings={settings} /> : <p className="mt-4 text-ink-soft">Loading…</p>}
+        <section className="mt-10">
+          <h2 className="text-xl text-ink">Reminders</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Prep-task reminders arrive at 9:00 your time on their due day.
+          </p>
+          {settings ? <ReminderControls settings={settings} /> : <p className="mt-4 text-ink-soft">Loading…</p>}
+        </section>
       </main>
     </div>
   );
@@ -121,6 +128,34 @@ function ReminderControls({ settings }: { settings: NotificationSettings }) {
         />
       </section>
 
+      <section className="rounded-xl border border-line bg-surface p-4">
+        <h3 className="text-sm font-semibold text-ink">Quiet hours</h3>
+        <p className="mt-0.5 text-xs text-ink-soft">
+          No reminders sent during this window (your local time).
+        </p>
+        <div className="mt-3 flex items-center gap-2 text-sm text-ink">
+          <HourSelect
+            label="From"
+            value={settings.quiet_start}
+            onChange={(v) => update.mutate({ quiet_start: v })}
+          />
+          <HourSelect
+            label="to"
+            value={settings.quiet_end}
+            onChange={(v) => update.mutate({ quiet_end: v })}
+          />
+          {(settings.quiet_start !== null || settings.quiet_end !== null) && (
+            <button
+              type="button"
+              onClick={() => update.mutate({ quiet_start: null, quiet_end: null })}
+              className="ml-auto text-xs text-leaf underline"
+            >
+              clear
+            </button>
+          )}
+        </div>
+      </section>
+
       <p className="font-mono text-xs text-ink-soft">
         Timezone: {settings.timezone}
         {settings.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone && (
@@ -135,6 +170,59 @@ function ReminderControls({ settings }: { settings: NotificationSettings }) {
           </button>
         )}
       </p>
+    </div>
+  );
+}
+
+function HourSelect({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number | null;
+  onChange: (v: number | null) => void;
+}) {
+  return (
+    <label className="flex items-center gap-1.5 text-ink-soft">
+      {label}
+      <select
+        aria-label={`Quiet hours ${label}`}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+        className="rounded-md border border-line bg-canvas px-2 py-1 font-mono text-sm text-ink"
+      >
+        <option value="">—</option>
+        {Array.from({ length: 24 }, (_, h) => (
+          <option key={h} value={h}>
+            {String(h).padStart(2, "0")}:00
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ThemeToggle() {
+  const [theme, setLocal] = useState<Theme>(resolveTheme());
+  return (
+    <div className="mt-3 inline-flex rounded-lg border border-line p-0.5">
+      {(["light", "dark"] as Theme[]).map((option) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={theme === option}
+          onClick={() => {
+            setTheme(option);
+            setLocal(option);
+          }}
+          className={`rounded-md px-4 py-1.5 text-sm capitalize ${
+            theme === option ? "bg-leaf-deep text-parchment" : "text-ink-soft hover:text-ink"
+          }`}
+        >
+          {option === "light" ? "Day garden" : "Night garden"}
+        </button>
+      ))}
     </div>
   );
 }

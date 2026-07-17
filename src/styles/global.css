@@ -8,6 +8,7 @@
   --color-soil: var(--soil);
   --color-parchment: var(--parchment);
   --color-leaf: var(--leaf);
+  --color-leaf-deep: var(--leaf-deep);
   --color-petal: var(--petal);
   --color-marigold: var(--marigold);
   --color-mist: var(--mist);
@@ -83,6 +84,26 @@
   .flower-sway {
     animation: sway 6s ease-in-out infinite;
     transform-origin: 50% 92%;
+  }
+
+  /* dream-company tag: a slow golden sheen sweeping across the paper */
+  @keyframes dream-shimmer {
+    0% {
+      background-position: -150% 0;
+    }
+    100% {
+      background-position: 250% 0;
+    }
+  }
+  .dream-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, var(--marigold) 55%, transparent) 50%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: dream-shimmer 3.5s ease-in-out infinite;
   }
 
   /* petal glow on streak milestones (7/30/100 days) */

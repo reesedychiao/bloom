@@ -1,10 +1,20 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { supabase } from "../lib/supabase";
 import { useStreak, useSunlightTotal } from "../lib/api/hooks";
 import { levelProgress } from "../lib/game/levels";
 
+const NAV: { to: string; label: string }[] = [
+  { to: "/", label: "Garden" },
+  { to: "/pipeline", label: "Pipeline" },
+  { to: "/bouquet", label: "Bouquet" },
+  { to: "/almanac", label: "Almanac" },
+  { to: "/applications", label: "List" },
+  { to: "/settings", label: "Settings" },
+];
+
 /** Garden header HUD: Sunlight, level + rank progress, watering streak. */
 export function AppHeader() {
+  const { pathname } = useLocation();
   const { data: total = 0 } = useSunlightTotal();
   const { data: streak } = useStreak();
   const progress = levelProgress(total);
@@ -28,12 +38,6 @@ export function AppHeader() {
           >
             🌢 {days}
           </span>
-          <Link to="/applications" className="text-sm text-ink-soft hover:text-ink">
-            List
-          </Link>
-          <Link to="/settings" aria-label="Settings" className="text-sm text-ink-soft hover:text-ink">
-            ⚙
-          </Link>
           <button
             type="button"
             onClick={() => supabase?.auth.signOut()}
@@ -63,6 +67,23 @@ export function AppHeader() {
           {progress.into}/{progress.span}
         </span>
       </div>
+      <nav className="-mx-1 mt-2 flex gap-1 overflow-x-auto" aria-label="Sections">
+        {NAV.map((item) => {
+          const active = pathname === item.to;
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              aria-current={active ? "page" : undefined}
+              className={`shrink-0 rounded-full px-3 py-1 text-sm ${
+                active ? "bg-leaf-deep text-parchment" : "text-ink-soft hover:text-ink"
+              }`}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     </header>
   );
 }

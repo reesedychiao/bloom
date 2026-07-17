@@ -18,13 +18,18 @@
   --tint-rose: #b04e52; /* dusty garden red */
   --tint-tulip: #d97f4b; /* warm terracotta orange */
   --tint-lavender: #8f7fae; /* muted botanical violet */
+  --tint-poppy: #c0442f; /* warm crepe red */
+  --tint-orchid: #a25a9c; /* exotic mauve-magenta */
 
   /* semantic */
   --canvas: var(--parchment); /* page background */
   --ink: var(--soil); /* primary text */
   --surface: #fffdf5; /* raised paper (cards, tags) */
   --border: color-mix(in srgb, var(--mist) 55%, transparent);
-  --ink-soft: color-mix(in srgb, var(--soil) 62%, var(--parchment));
+  --ink-soft: color-mix(in srgb, var(--soil) 74%, var(--parchment)); /* AA on surface */
+  /* deeper leaf for text-bearing fills (buttons) so parchment text clears AA;
+     plain --leaf stays for foliage art and accents */
+  --leaf-deep: #4c6a3f;
 }
 
 /*
@@ -39,10 +44,14 @@
   --tint-rose: #c25e62;
   --tint-tulip: #e5905c;
   --tint-lavender: #a493c4;
+  --tint-poppy: #d65a44;
+  --tint-orchid: #b874b0;
 
   --canvas: #332924; /* soil, deepened for contrast */
   --ink: var(--parchment);
   --surface: #3e322b;
   --border: color-mix(in srgb, var(--mist) 45%, transparent);
-  --ink-soft: color-mix(in srgb, var(--parchment) 65%, #332924);
+  --ink-soft: color-mix(in srgb, var(--parchment) 72%, #332924);
+  /* --leaf-deep keeps its light-mode value: buttons carry light parchment text
+     in both themes, so the fill must stay dark enough for AA either way */
 }

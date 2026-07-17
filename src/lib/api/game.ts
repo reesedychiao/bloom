@@ -140,16 +140,17 @@ export async function awardAction(input: AwardInput): Promise<AwardResult> {
     }
   }
 
-  // 4 — achievements
+  // 4 — achievements. Bloom (and the bouquet) is now growth_stage 3 — a booked
+  // interview or an offer — so both stats read from the same maintained column.
   const [
     { count: totalApplications },
     { count: totalComposted },
-    { count: blooms },
+    { count: bouquetSize },
     { count: totalInterviews },
   ] = await Promise.all([
     c.from("applications").select("id", { count: "exact", head: true }),
     c.from("sunlight_events").select("id", { count: "exact", head: true }).eq("reason", "compost"),
-    c.from("applications").select("id", { count: "exact", head: true }).in("status", ["offer", "accepted"]),
+    c.from("applications").select("id", { count: "exact", head: true }).eq("growth_stage", 3),
     c.from("interviews").select("id", { count: "exact", head: true }),
   ]);
   const unlockedBefore = await fetchUnlockedAchievements();
@@ -158,8 +159,9 @@ export async function awardAction(input: AwardInput): Promise<AwardResult> {
       totalApplications: totalApplications ?? 0,
       totalComposted: totalComposted ?? 0,
       currentStreak: advance.state.current_streak,
-      everReachedBloom: (blooms ?? 0) > 0,
+      everReachedBloom: (bouquetSize ?? 0) > 0,
       totalInterviews: totalInterviews ?? 0,
+      bouquetSize: bouquetSize ?? 0,
     },
     unlockedBefore,
   );

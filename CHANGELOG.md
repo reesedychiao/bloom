@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 4 — Pipeline, bouquet, almanac & polish (2026-07-17)
+
+- **Bloom model change:** a flower reaches full bloom when an interview is scheduled (not only at offer) — offers are too rare for the garden to bloom otherwise, and blooming on a booked interview rewards effort you control. Migration 0005 makes `growth_stage = greatest(status stage, interview-bloom)` with terminal statuses preserving their stage; the bouquet is simply every flower at `growth_stage = 3`. Scheduling an interview celebrates with a bloom toast.
+- **Pipeline kanban** (`/pipeline`): @dnd-kit drag between stage columns with a keyboard sensor and per-card tap arrows (mobile/a11y path); moving a card advances status, awards Sunlight, and morphs its flower thumbnail.
+- **Bouquet** (`/bouquet`): vase of cut blooms + pressed-flower achievements wall; `full_bouquet_5` and `first_interview` achievements wired.
+- **Almanac** (`/almanac`): pipeline funnel, response rate by source, 30-day Sunlight, and average days-per-stage — Recharts themed from the palette, client-side aggregations (unit tested).
+- Last two species: **poppy** and **orchid** (all 10 now shipped). **Dream-company shimmer** on the garden tag. **Night-garden toggle** in Settings (persisted, flash-free via an inline boot script) + **quiet-hours** controls.
+- Polish: service worker now caches Supabase GETs stale-while-revalidate (last-known garden offline); Lighthouse accessibility **100** (contrast fixed via a deeper leaf for text buttons + darker secondary ink); PWA manifest/SW verified installable; core-flow smoke test (plant → advance → bloom) as a deterministic Vitest integration test.
+
+Deferred (out of spec scope): contacts CRUD, multi-user. Two dev-only preview routes ship alongside the app: `/species` (art reference) and `/almanac-preview` (chart mock data).
+
 ## Phase 3 — Interviews & reminders (2026-07-17)
 
 - Interview prep engine (`src/lib/game/prep.ts`, pure + unit tested): generates the T-5…T-1 checklist backward from the interview date, compresses gracefully when <5 days out, collapses to one "crash prep" task when <2 days out, never schedules in the past; kind-specific practice tasks; mock task pays the mock rate (40).

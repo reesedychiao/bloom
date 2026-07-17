@@ -73,7 +73,7 @@ export function Garden() {
       <button
         type="button"
         onClick={() => setSheetOpen(true)}
-        className="fixed bottom-6 right-6 z-30 rounded-full bg-leaf px-5 py-3 font-semibold text-parchment shadow-lg transition-transform hover:scale-105"
+        className="fixed bottom-6 right-6 z-30 rounded-full bg-leaf-deep px-5 py-3 font-semibold text-parchment shadow-lg transition-transform hover:scale-105"
       >
         Plant a seed
       </button>
@@ -116,12 +116,20 @@ function GardenFlower({ app, justPlanted }: { app: Application; justPlanted: boo
         </button>
       </PlantDrop>
 
-      {/* paper tag on hover/focus */}
+      {/* paper tag on hover/focus; dream companies get a golden shimmer */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-full z-10 w-max max-w-44 -translate-x-1/2 -translate-y-3 -rotate-2 rounded-sm border border-line bg-surface px-2.5 py-1.5 text-left opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
+        className={`pointer-events-none absolute left-1/2 top-full z-10 w-max max-w-44 -translate-x-1/2 -translate-y-3 -rotate-2 overflow-hidden rounded-sm border bg-surface px-2.5 py-1.5 text-left opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100 ${
+          app.is_dream ? "border-marigold/60" : "border-line"
+        }`}
       >
-        <p className="truncate text-sm font-semibold text-ink">{app.company}</p>
+        {app.is_dream && (
+          <span className="dream-shimmer absolute inset-0" aria-hidden="true" />
+        )}
+        <p className="truncate text-sm font-semibold text-ink">
+          {app.is_dream && "★ "}
+          {app.company}
+        </p>
         <p className="truncate text-xs text-ink-soft">{app.role}</p>
         <p className="mt-0.5 font-mono text-xs text-leaf">
           {STATUS_LABELS[app.status]}

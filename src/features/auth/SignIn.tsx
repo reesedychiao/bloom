@@ -63,7 +63,7 @@ export function SignIn() {
             <button
               type="submit"
               disabled={status === "sending"}
-              className="mt-2 rounded-lg bg-leaf px-4 py-2 font-semibold text-parchment transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="mt-2 rounded-lg bg-leaf-deep px-4 py-2 font-semibold text-parchment transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               {status === "sending" ? "Sending…" : "Send sign-in link"}
             </button>

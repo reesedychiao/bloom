@@ -81,7 +81,7 @@ export function CompostDialog({
                 type="button"
                 onClick={confirm}
                 disabled={compost.isPending}
-                className="flex-1 rounded-lg bg-leaf px-4 py-2 text-sm font-semibold text-parchment hover:opacity-90 disabled:opacity-60"
+                className="flex-1 rounded-lg bg-leaf-deep px-4 py-2 text-sm font-semibold text-parchment hover:opacity-90 disabled:opacity-60"
               >
                 {compost.isPending ? "Composting…" : "Compost"}
               </button>

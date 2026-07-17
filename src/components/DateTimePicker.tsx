@@ -186,7 +186,7 @@ export function DateTimePicker({
                     aria-pressed={isSelected(day)}
                     className={`rounded-md py-1.5 text-sm transition-colors ${
                       isSelected(day)
-                        ? "bg-leaf font-semibold text-parchment"
+                        ? "bg-leaf-deep font-semibold text-parchment"
                         : isToday(day)
                           ? "text-ink ring-1 ring-marigold ring-inset hover:bg-canvas"
                           : "text-ink hover:bg-canvas"
@@ -228,7 +228,7 @@ export function DateTimePicker({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="ml-auto rounded-md bg-leaf px-3 py-1 text-sm font-semibold text-parchment hover:opacity-90"
+                className="ml-auto rounded-md bg-leaf-deep px-3 py-1 text-sm font-semibold text-parchment hover:opacity-90"
               >
                 Done
               </button>
