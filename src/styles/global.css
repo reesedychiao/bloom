@@ -24,6 +24,7 @@
   --font-body: "Nunito Sans Variable", system-ui, sans-serif;
   --font-sans: "Nunito Sans Variable", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-script: "Caveat Variable", cursive; /* handwritten notes (quest pad) */
 
   /* type scale, 1.25 ratio from 1rem */
   --text-xs: 0.64rem;
@@ -82,6 +83,19 @@
   .flower-sway {
     animation: sway 6s ease-in-out infinite;
     transform-origin: 50% 92%;
+  }
+
+  /* petal glow on streak milestones (7/30/100 days) */
+  .streak-glow-7 {
+    text-shadow: 0 0 6px color-mix(in srgb, var(--petal) 55%, transparent);
+  }
+  .streak-glow-30 {
+    color: var(--petal);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--petal) 75%, transparent);
+  }
+  .streak-glow-100 {
+    color: var(--marigold);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--marigold) 80%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {

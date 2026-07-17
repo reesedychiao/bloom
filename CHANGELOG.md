@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 2 — Gamification (2026-07-17)
+
+- Pure, unit-tested game library (`src/lib/game/`): Sunlight values, level curve (100·L^1.5 rounded to 10) with Gardener ranks + Roman-numeral prestige, watering streak with auto-applied freezes (2/week, Monday replenish, never punishes clock skew), rotating daily/weekly quests, achievement evaluation. 33 tests.
+- `awardAction()` orchestrator (`src/lib/api/game.ts`): every earning action writes the ledger, waters the streak, bumps matching quests (+rewards), and checks achievements. Client-orchestrated (not triggers) because the logic is stateful and spec-mandated pure TS; sequential writes are non-atomic but retryable.
+- UI: header HUD (Sunlight, level + progress bar, streak with petal glow at 7/30/100), quest trellis card, Sunlight toasts, skippable marigold level-up overlay (all reduced-motion safe). Zustand added for toast/celebration state.
+- Compost flow: rejecting opens the lesson-learned dialog (+15 with a note; the note lands on the rejection's timeline event); wilted flowers desaturate. Ghosted: 21+ day idle apps offer one-tap "mark ghosted" (+10 quiet credit). 7+ day idle flowers droop and read "thirsty" on their tag.
+- Outreach (+15) / follow-up (+10) quick-log buttons on flower detail; logging tends the flower (resets idle).
+
+Known minor: quest generation is client-side on first open; a same-instant plant on a fresh day could double-generate dailies (single-user risk ≈ nil). Deferred: contacts CRUD, prep-task quest pool (Phase 3), achievements wall + bouquet (Phase 4).
+
+
 ## Phase 1 — Core CRUD + garden (2026-07-16)
 
 - Full schema (`supabase/migrations/0001_init.sql` + `0002_more_species.sql`): all 9 tables, owner-only RLS, and triggers that write `stage_events` and derive `growth_stage` atomically on any status change.

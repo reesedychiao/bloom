@@ -86,6 +86,26 @@ export interface StageEvent {
   note: string | null;
 }
 
+export interface Quest {
+  id: string;
+  kind: "daily" | "weekly";
+  title: string;
+  target: number;
+  progress: number;
+  reward: number;
+  assigned_on: string;
+  expires_on: string;
+  completed_at: string | null;
+}
+
+export interface SunlightEvent {
+  id: string;
+  amount: number;
+  reason: string;
+  ref_id: string | null;
+  occurred_on: string;
+}
+
 /** Fields the plant-a-seed form is allowed to send; the rest are defaults/derived. */
 export type NewApplication = Pick<Application, "company" | "role" | "species"> &
   Partial<

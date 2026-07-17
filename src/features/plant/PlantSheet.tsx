@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Flower } from "../../assets/flowers/Flower";
-import { useCreateApplication } from "../../lib/api/hooks";
+import { usePlantSeed } from "../../lib/api/hooks";
 import { AVAILABLE_SPECIES, SPECIES_LABELS, type Species } from "../../lib/types";
 
 type SpeciesChoice = Species | "surprise";
@@ -16,7 +16,7 @@ export function PlantSheet({
   onPlanted: (id: string) => void;
 }) {
   const reduceMotion = useReducedMotion();
-  const create = useCreateApplication();
+  const create = usePlantSeed();
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
   const [species, setSpecies] = useState<SpeciesChoice>("surprise");
@@ -60,7 +60,7 @@ export function PlantSheet({
         applied_at: new Date().toISOString().slice(0, 10),
       },
       {
-        onSuccess: (app) => {
+        onSuccess: ({ app }) => {
           reset();
           onPlanted(app.id);
           onClose();

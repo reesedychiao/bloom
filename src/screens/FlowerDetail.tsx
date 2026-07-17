@@ -1,14 +1,30 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { useApplication, useStageEvents, useUpdateStatus } from "../lib/api/hooks";
-import { STATUS_LABELS, STATUSES, type StageEvent, type Status } from "../lib/types";
+import {
+  useAdvanceStatus,
+  useApplication,
+  useLogTouch,
+  useMarkGhosted,
+  useStageEvents,
+} from "../lib/api/hooks";
+import { isTerminal } from "../lib/game/growth";
+import { daysBetween, localDateString } from "../lib/game/dates";
+import {
+  STATUS_LABELS,
+  STATUSES,
+  type Application,
+  type StageEvent,
+  type Status,
+} from "../lib/types";
 import { Flower } from "../assets/flowers/Flower";
+import { CompostDialog } from "../features/compost/CompostDialog";
 
 export function FlowerDetail() {
   const { id = "" } = useParams();
   const { data: app, isLoading } = useApplication(id);
   const { data: events } = useStageEvents(id);
-  const updateStatus = useUpdateStatus(id);
+  const [compostOpen, setCompostOpen] = useState(false);
 
   if (isLoading) {
     return <p className="p-8 text-ink-soft">Fetching your flower…</p>;
@@ -24,6 +40,9 @@ export function FlowerDetail() {
     );
   }
 
+  const wilted = isTerminal(app.status);
+  const idleDays = daysBetween(app.last_activity_at.slice(0, 10), localDateString());
+
   return (
     <div className="min-h-dvh bg-canvas">
       <header className="border-b border-line px-5 py-4">
@@ -36,11 +55,12 @@ export function FlowerDetail() {
         <div className="flex flex-col items-center sm:flex-row sm:items-end sm:gap-8">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={app.growth_stage}
+              key={`${app.growth_stage}-${wilted}`}
               initial={{ opacity: 0, y: 10, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
+              style={wilted ? { filter: "saturate(0.35)", rotate: "3deg", opacity: 0.85 } : undefined}
             >
               <Flower species={app.species} stage={app.growth_stage} className="h-56 w-40" />
             </motion.div>
@@ -65,26 +85,11 @@ export function FlowerDetail() {
               </a>
             )}
 
-            <div className="mt-4">
-              <label htmlFor="status" className="mr-2 text-sm text-ink">
-                Stage
-              </label>
-              <select
-                id="status"
-                value={app.status}
-                disabled={updateStatus.isPending}
-                onChange={(e) => updateStatus.mutate(e.target.value as Status)}
-                className="rounded-lg border border-line bg-surface px-3 py-2 text-ink"
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <StatusControls app={app} onCompost={() => setCompostOpen(true)} />
           </div>
         </div>
+
+        {!wilted && idleDays >= 21 && <GhostBanner app={app} idleDays={idleDays} />}
 
         {app.notes && (
           <section className="mt-8 rounded-xl border border-line bg-surface p-4">
@@ -98,7 +103,86 @@ export function FlowerDetail() {
           <Vine events={events ?? []} />
         </section>
       </main>
+
+      <CompostDialog app={app} open={compostOpen} onClose={() => setCompostOpen(false)} />
     </div>
+  );
+}
+
+function StatusControls({ app, onCompost }: { app: Application; onCompost: () => void }) {
+  const advance = useAdvanceStatus(app);
+  const logTouch = useLogTouch(app);
+  const wilted = isTerminal(app.status);
+
+  function handleStatusChange(status: Status) {
+    if (status === "rejected") {
+      onCompost();
+    } else {
+      advance.mutate(status);
+    }
+  }
+
+  return (
+    <div className="mt-4">
+      <div>
+        <label htmlFor="status" className="mr-2 text-sm text-ink">
+          Stage
+        </label>
+        <select
+          id="status"
+          value={app.status}
+          disabled={advance.isPending}
+          onChange={(e) => handleStatusChange(e.target.value as Status)}
+          className="rounded-lg border border-line bg-surface px-3 py-2 text-ink"
+        >
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {STATUS_LABELS[s]}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {!wilted && (
+        <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+          <button
+            type="button"
+            disabled={logTouch.isPending}
+            onClick={() => logTouch.mutate("outreach")}
+            className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink hover:border-leaf disabled:opacity-60"
+          >
+            Log outreach <span className="font-mono text-xs text-marigold">+15 ☀</span>
+          </button>
+          <button
+            type="button"
+            disabled={logTouch.isPending}
+            onClick={() => logTouch.mutate("followup")}
+            className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink hover:border-leaf disabled:opacity-60"
+          >
+            Log follow-up <span className="font-mono text-xs text-marigold">+10 ☀</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GhostBanner({ app, idleDays }: { app: Application; idleDays: number }) {
+  const ghost = useMarkGhosted(app);
+  return (
+    <section className="mt-8 flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4">
+      <p className="text-sm text-ink-soft">
+        {idleDays} days of quiet. You can let this one rest — the garden keeps what it taught you.
+      </p>
+      <button
+        type="button"
+        disabled={ghost.isPending}
+        onClick={() => ghost.mutate()}
+        className="shrink-0 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft hover:text-ink disabled:opacity-60"
+      >
+        Mark ghosted
+      </button>
+    </section>
   );
 }
 
@@ -135,7 +219,7 @@ function Vine({ events }: { events: StageEvent[] }) {
               year: "numeric",
             })}
           </p>
-          {event.note && <p className="mt-1 text-sm text-ink-soft">{event.note}</p>}
+          {event.note && <p className="mt-1 text-sm text-ink-soft">“{event.note}”</p>}
         </li>
       ))}
     </ol>

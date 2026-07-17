@@ -1,13 +1,15 @@
 import { useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { supabase } from "../lib/supabase";
 import { useApplications } from "../lib/api/hooks";
 import { isTerminal } from "../lib/game/growth";
+import { daysBetween, localDateString } from "../lib/game/dates";
 import { STATUS_LABELS, type Application } from "../lib/types";
 import { Flower } from "../assets/flowers/Flower";
 import { SproutStage } from "../assets/flowers/shared";
 import { PlantSheet } from "../features/plant/PlantSheet";
+import { AppHeader } from "../components/AppHeader";
+import { QuestTrellis } from "../components/QuestTrellis";
 
 /** Stable pseudo-random jitter per application so the bed feels organic
  *  but never reshuffles between renders. */
@@ -31,34 +33,15 @@ export function Garden() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [justPlantedId, setJustPlantedId] = useState<string | null>(null);
 
-  // wilt/compost visuals arrive in Phase 2 — until then the bed shows live flowers
+  // composted/ghosted flowers leave the bed; the bouquet & almanac (Phase 4) remember them
   const growing = (applications ?? []).filter((a) => !isTerminal(a.status));
 
   return (
     <div className="min-h-dvh bg-canvas">
-      <header className="flex items-center justify-between border-b border-line px-5 py-4">
-        <h1 className="text-xl text-ink">Bloom</h1>
-        <nav className="flex items-center gap-4">
-          <span className="font-mono text-xs text-ink-soft" title="Sunlight — arrives in Phase 2">
-            ☀ 0
-          </span>
-          <span className="font-mono text-xs text-ink-soft" title="Watering streak — arrives in Phase 2">
-            🌢 0
-          </span>
-          <Link to="/applications" className="text-sm text-ink-soft hover:text-ink">
-            List
-          </Link>
-          <button
-            type="button"
-            onClick={() => supabase?.auth.signOut()}
-            className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft hover:text-ink"
-          >
-            Sign out
-          </button>
-        </nav>
-      </header>
+      <AppHeader />
 
-      <main className="mx-auto max-w-3xl px-4 py-8">
+      <main className="mx-auto max-w-3xl px-4 py-4">
+        <QuestTrellis />
         {isError ? (
           <p role="alert" className="mx-auto max-w-md rounded-lg border border-line bg-surface p-4 text-sm text-ink-soft">
             The garden couldn’t be reached: {(error as Error).message}
@@ -75,7 +58,7 @@ export function Garden() {
             </p>
           </div>
         ) : (
-          <ul className="flex flex-wrap items-end justify-center gap-x-1 gap-y-6 pb-24">
+          <ul className="mt-6 flex flex-wrap items-end justify-center gap-x-1 gap-y-6 pb-24">
             {growing.map((app) => (
               <GardenFlower
                 key={app.id}
@@ -107,6 +90,9 @@ export function Garden() {
 function GardenFlower({ app, justPlanted }: { app: Application; justPlanted: boolean }) {
   const navigate = useNavigate();
   const j = jitter(app.id);
+  // spec §5.5: leads idle 7+ days droop a little and ask for water
+  const idleDays = daysBetween(app.last_activity_at.slice(0, 10), localDateString());
+  const thirsty = idleDays >= 7;
 
   return (
     <li
@@ -117,12 +103,15 @@ function GardenFlower({ app, justPlanted }: { app: Application; justPlanted: boo
         <button
           type="button"
           onClick={() => navigate(`/flower/${app.id}`)}
-          aria-label={`${app.company}, ${app.role} — ${STATUS_LABELS[app.status]}`}
+          aria-label={`${app.company}, ${app.role} — ${STATUS_LABELS[app.status]}${thirsty ? ", getting thirsty" : ""}`}
           className="block transition-transform duration-300 group-hover:-translate-y-1.5"
-          style={{ transform: `rotate(${j.rotate}deg) scale(${j.scale})` }}
+          style={{
+            transform: `rotate(${j.rotate + (thirsty ? 4 : 0)}deg) scale(${j.scale})`,
+            filter: thirsty ? "saturate(0.6)" : undefined,
+          }}
         >
           <div className="flower-sway" style={{ animationDelay: `${j.swayDelay}s` }}>
-            <Flower species={app.species} stage={app.growth_stage} className="h-32 w-[92px]" />
+            <Flower species={app.species} stage={app.growth_stage} className="h-32 w-23" />
           </div>
         </button>
       </PlantDrop>
@@ -134,7 +123,10 @@ function GardenFlower({ app, justPlanted }: { app: Application; justPlanted: boo
       >
         <p className="truncate text-sm font-semibold text-ink">{app.company}</p>
         <p className="truncate text-xs text-ink-soft">{app.role}</p>
-        <p className="mt-0.5 font-mono text-xs text-leaf">{STATUS_LABELS[app.status]}</p>
+        <p className="mt-0.5 font-mono text-xs text-leaf">
+          {STATUS_LABELS[app.status]}
+          {thirsty && <span className="text-mist"> · thirsty 🌢</span>}
+        </p>
       </div>
     </li>
   );

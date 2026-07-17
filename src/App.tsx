@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { AuthGate } from "./features/auth/AuthGate";
+import { Toasts } from "./components/Toasts";
+import { LevelUpOverlay } from "./components/LevelUpOverlay";
 import { Garden } from "./screens/Garden";
 import { FlowerDetail } from "./screens/FlowerDetail";
 import { Applications } from "./screens/Applications";
@@ -21,6 +23,8 @@ export default function App() {
           <Route path="/flower/:id" element={<AuthGate><FlowerDetail /></AuthGate>} />
           <Route path="/applications" element={<AuthGate><Applications /></AuthGate>} />
         </Routes>
+        <Toasts />
+        <LevelUpOverlay />
       </BrowserRouter>
     </QueryClientProvider>
   );
